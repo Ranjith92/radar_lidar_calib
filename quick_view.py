@@ -71,6 +71,9 @@ class LidarRadarTkViewer:
         self.canvas.bind("<B1-Motion>", self.on_left_drag)
         self.canvas.bind("<ButtonRelease-1>", self.on_left_up)
 
+        # Auto-save on close
+        self.root.protocol("WM_DELETE_WINDOW", self.on_close)
+
         # Initial load
         self.load_pair()
         self.root.mainloop()
@@ -182,6 +185,17 @@ class LidarRadarTkViewer:
         self.index = (self.index - 1) % len(self.pairs)
         self.load_pair()
 
+    # -------------------
+    def on_close(self):
+        if self.lidar_means.size < 5:
+            print("Choosen pairs are less than 5. lidar_means.npy and radar_means.npy are not saved")
+        else:
+            np.save("outputs/lidar_means.npy", self.lidar_means)
+            np.save("outputs/radar_means.npy", self.radar_means)
+            print("Saved lidar_means.npy and radar_means.npy")
+        self.root.destroy()
+
+
 
 # ---------------------------
 # Run
@@ -189,10 +203,10 @@ class LidarRadarTkViewer:
 
 def get_matrices_init(radar_position):
     """Get initial matrices for the viewer."""
-    # original radar→lidar transform
+    # original radar→lidar Transform
 
     t_LI = np.array([0.585, 0.0, 1.859])      # lidar -> imu
-    
+
     if radar_position == "FL":
         th = np.deg2rad(50)
         R = np.array([[np.cos(th), -np.sin(th), 0.0],
@@ -200,13 +214,12 @@ def get_matrices_init(radar_position):
                         [0.0,         0.0,        1.0]])
         t_RI = np.array([3.441, 0.635, 0.335])   # radar -> imu
         t = t_RI - t_LI
-
     return R, t
 
 if __name__ == "__main__":
     
     radar_selected = "FL"  # Change to "FR", "FC", "RL", or "RR" as needed
-    FOLDER = "/Users/robertkrutsch/Downloads/test_data/"
+    FOLDER = "./test_data/"
 
     R_ref,t_ref = get_matrices_init(radar_selected)
 

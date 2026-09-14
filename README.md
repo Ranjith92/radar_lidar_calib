@@ -1,4 +1,4 @@
-Task: Make a tool to perform the extrinsic calibration of the radar and lidar ( rotation and translation matrix )
+﻿Task: Make a tool to perform the extrinsic calibration of the radar and lidar ( rotation and translation matrix )
 
 The radar has no elevation so z component is not reliable and should be ignored, that makes the problem simpler as we need just one angle in the rotation matrix.
 
@@ -67,4 +67,28 @@ After you find the radar to lidar extrinsics you could find the radar to camera 
 
 USE AI to not spend ages on it ! Use whatever you like to code and send us your github link. Write 3-4 lines to explain what you have done.
 Hint : All you need to do is find corespondences (the corner reflector in various sensing modalities) and find the best fit transformation with your favorite solver. Each set of (radar,lidar) will give you one corespondence. Quick results are more fancy than elaborate GUIs. Things are not going to be perfect, recall radar has no elevation measurement.  
+
+
+# Radar–Lidar Extrinsic Calibration
+
+Extracted radar/lidar corner‑reflector correspondences using a simple viewer.
+Then solved for yaw‑only rotation and translation using a 2D SVD‑based Procrustes method and refined using nonlinear least-squares.
+Combined intial and optimized parameter to transform radar data into lidar coordinate.
+Composed radar→camera using lidar→camera calibration and Visualized.
+
+## Pipeline
+
+1. Use the Tk viewer (`quick_view.py`) to inspect lidar/radar pairs and manually
+   select the corner reflector. The viewer stores mean points into:
+   - outputs/lidar_means.npy
+   - outputs/radar_means.npy
+
+2. Run the calibration solver (`radar_to_lidar_ext_calibrate.py`) to compute:
+   - yaw angle
+   - rotation matrix stores into outputs/R_radar_lidar.npy
+   - translation stores into outputs/t_radar_lidar.npy
+
+3. Visualization of radar and lidar corner reflector alignment (`visualize_alignment.py`).
+
+4. Projecting lidar and radar points into the camera image (`lidar_radar_overlay_in_image.py`).
 
