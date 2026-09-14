@@ -77,11 +77,11 @@ def draw_lidar_radar_pts(img, lidar_proj, radar_proj):
 if __name__ == "__main__":
 
     # Load camera image
-    img = cv2.imread("test_data/test_data/16.jpg")
+    img = cv2.imread("test_data/16.jpg")
 
     # Load lidar and radar points
-    lidar_pts = load_points("test_data/test_data/16.csv")
-    radar_pts = load_points("test_data/test_data/16_rad.csv")
+    lidar_pts = load_points("test_data/16.csv")
+    radar_pts = load_points("test_data/16_rad.csv")
 
     # Load radar->lidar calibration (your solved extrinsics)
     R_rl = np.load("outputs/R_radar_lidar.npy")

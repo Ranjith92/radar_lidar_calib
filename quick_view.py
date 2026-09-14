@@ -214,13 +214,12 @@ def get_matrices_init(radar_position):
                         [0.0,         0.0,        1.0]])
         t_RI = np.array([3.441, 0.635, 0.335])   # radar -> imu
         t = t_RI - t_LI
-
     return R, t
 
 if __name__ == "__main__":
     
     radar_selected = "FL"  # Change to "FR", "FC", "RL", or "RR" as needed
-    FOLDER = "/Users/robertkrutsch/Downloads/test_data/"
+    FOLDER = "./test_data/"
 
     R_ref,t_ref = get_matrices_init(radar_selected)
 

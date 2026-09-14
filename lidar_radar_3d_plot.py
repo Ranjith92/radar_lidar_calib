@@ -18,8 +18,8 @@ def load_points(csv_path, b_box):
 # ------------------------------------------------------------
 # Load radar + lidar CSV files
 # ------------------------------------------------------------
-lidar_pts = load_points("test_data/test_data/8.csv", 8)
-radar_pts = load_points("test_data/test_data/8_rad.csv", 8)
+lidar_pts = load_points("test_data/8.csv", 8)
+radar_pts = load_points("test_data/8_rad.csv", 8)
 
 # ------------------------------------------------------------
 # Optional: apply radar→lidar transform
