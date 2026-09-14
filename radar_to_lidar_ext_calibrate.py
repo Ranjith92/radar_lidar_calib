@@ -1,6 +1,7 @@
 ﻿import cv2
 import numpy as np
 from scipy.optimize import least_squares
+from quick_view import get_matrices_init
 
 def solve_radar_lidar_extrinsics_svd(lidar_pts, radar_pts):
     """
@@ -204,6 +205,21 @@ def refine_radar_lidar_extrinsics_nonlinear(lidar_pts, radar_pts, yaw_init, R_in
     return yaw_opt, R_opt, t_opt, result
 
 
+def combine_R_t(R1, t1, R2, t2):
+    """
+    Combine two transforms:
+        T1 = (R1, t1)
+        T2 = (R2, t2)
+    Result:
+        T_combined = T2 * T1
+    """
+    # Combined rotation
+    R_combined = R2 @ R1
+
+    # Combined translation
+    t_combined = R2 @ t1 + t2
+
+    return R_combined, t_combined
 
 
 if __name__ == "__main__":
@@ -212,20 +228,33 @@ if __name__ == "__main__":
     lidar_means = np.load("outputs/lidar_means.npy")
     radar_means = np.load("outputs/radar_means.npy")
 
-    # 1. Get initial solution (SVD or RANSAC)
-    yaw_init, R_init, t_init = solve_radar_lidar_extrinsics_svd(lidar_means, radar_means)
-    # yaw_init, R_init, t_init, inliers = solve_radar_lidar_extrinsics_ransac(lidar_means, radar_means)
+    # 1. Get solution (SVD or RANSAC)
+    yaw, R, t = solve_radar_lidar_extrinsics_svd(lidar_means, radar_means)
+    # yaw, R, t, inliers = solve_radar_lidar_extrinsics_ransac(lidar_means, radar_means)
 
     # 2. Refine with nonlinear optimization
     yaw_opt, R_opt, t_opt, result = refine_radar_lidar_extrinsics_nonlinear(
-        lidar_means, radar_means, yaw_init, R_init, t_init)
+        lidar_means, radar_means, yaw, R, t)
 
-    # Stored calibrated parameters to numpy files
-    np.save("outputs/R_radar_lidar.npy", R_opt)
-    np.save("outputs/t_radar_lidar.npy", t_opt)
+    # The calibrated R and T values are based on the transformed values of radar data
+    # Therefore we need to combine the initial transform to the calibrated Transform
+    R_init, t_init = get_matrices_init("FL") # getting intial transform values from quick_view.py
+    R_output, t_output = combine_R_t(R_init, t_init, R_opt, t_opt) # combinte two transforms
+
+    # Stored calibrated parameters to numpy files for analysis
+    # SVD
+    np.save("outputs/svd_R.npy", R)
+    np.save("outputs/svd_t.npy", t)
+    # Nonlinear optimization
+    np.save("outputs/nonlinear_R.npy", R_opt)
+    np.save("outputs/nonlinear_t.npy", t_opt)
+
+    # Stored final output parameters to numpy files
+    np.save("outputs/R_radar_lidar.npy", R_output)
+    np.save("outputs/t_radar_lidar.npy", t_output)
 
     # Print the calibrated parameters
-    print("Yaw (deg):", np.degrees(yaw_opt))
-    print("R:\n", R_opt)
-    print("t:", t_opt)
-    print("Least Squares:\n", result)
+    print("R:\n", R_output)
+    print("t:", t_output)
+
+
